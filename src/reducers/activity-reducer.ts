@@ -1,29 +1,38 @@
-import { act } from "react"
-import { Activity } from "../types"
+import { act } from "react";
+import { Activity } from "../types";
 
-export type ActivityActions = 
-{type: 'save-activity', payload: {newActivity: Activity}}
+export type ActivityActions =
+    | { type: "save-activity"; payload: { newActivity: Activity } }
+    | { type: "set-activeId"; payload: { id: Activity["id"] } };
 
 type ActivityState = {
-  activities : Activity[],
-}
+    activities: Activity[];
+    activeId: Activity["id"];
+};
 
-export const initialState : ActivityState= {
-  activities: [],
-}
+export const initialState: ActivityState = {
+    activities: [],
+    activeId: "",
+};
 
 export const activityReducer = (
-  state: ActivityState = initialState,
-  actions: ActivityActions
-) =>{
-  if(actions.type === 'save-activity'){
-    //este codigo maneja la logica para actualizar el estado
+    state: ActivityState = initialState,
+    actions: ActivityActions
+) => {
+    if (actions.type === "save-activity") {
+        //este codigo maneja la logica para actualizar el estado
 
-    return{
-      ...state,
-      activities: [...state.activities, actions.payload.newActivity]
+        return {
+            ...state,
+            activities: [...state.activities, actions.payload.newActivity],
+        };
     }
-  }
 
-  return state
-}
+    if (actions.type === "set-activeId") {
+		return{
+			...state,
+			activeId: actions.payload.id
+		}
+    }
+    return state;
+};
