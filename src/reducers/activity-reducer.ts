@@ -2,16 +2,23 @@ import { act } from "react";
 import { Activity } from "../types";
 
 export type ActivityActions =
-    | { type: "save-activity"; payload: { newActivity: Activity } }
-    | { type: "set-activeId"; payload: { id: Activity["id"] } };
+    { type: "save-activity"; payload: { newActivity: Activity } } |
+    { type: "set-activeId"; payload: { id: Activity["id"] } } |
+    { type: "delete-activity"; payload: { id: Activity["id"] } } |
+    { type: "restard-app"};
 
-type ActivityState = {
+export type ActivityState = {
     activities: Activity[];
     activeId: Activity["id"];
 };
 
+const localStorageActivities = (): Activity[] => {
+    const activities = localStorage.getItem('activities')
+    return activities ? JSON.parse(activities) : []
+}
+
 export const initialState: ActivityState = {
-    activities: [],
+    activities: localStorageActivities(),
     activeId: "",
 };
 
@@ -21,10 +28,19 @@ export const activityReducer = (
 ) => {
     if (actions.type === "save-activity") {
         //este codigo maneja la logica para actualizar el estado
+        let updatedActivities: Activity[] = []; 
 
+        if(state.activeId){
+            updatedActivities = state.activities.map(activity => activity.id === state.activeId ? actions.payload.newActivity :
+                activity
+            )
+        }else {
+            updatedActivities =  [...state.activities, actions.payload.newActivity]
+        }
         return {
             ...state,
-            activities: [...state.activities, actions.payload.newActivity],
+            activities: updatedActivities,
+            activeId: ''
         };
     }
 
@@ -34,5 +50,21 @@ export const activityReducer = (
 			activeId: actions.payload.id
 		}
     }
+
+    if (actions.type === "delete-activity") {
+
+        return {
+            ...state,
+            activities: state.activities.filter(activity => activity.id !== actions.payload.id)
+        }
+    }
+
+    if (actions.type === "restard-app") {
+        return {
+            activities: [],
+            activeId: ''
+        }
+    }
+
     return state;
 };
